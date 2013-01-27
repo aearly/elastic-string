@@ -1,5 +1,5 @@
 {
-  "name": "weighted_string",
+  "name": "elastic-string",
   "version": "0.0.0",
   "description": "Canvas 2D experiment.",
   "main": "index.js",

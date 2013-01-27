@@ -1,3 +1,3 @@
-# weighted_string
+# elastic-string
 
 A Canvas2D experiment

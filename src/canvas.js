@@ -6,7 +6,7 @@ var
 
 module.exports = function () {
   var
-    canvas = $("#weighted-string"),
+    canvas = $("#elastic-string"),
     ctx = canvas[0].getContext("2d"),
     width,
     height,
