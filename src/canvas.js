@@ -19,13 +19,15 @@ module.exports = function () {
     numPoints = 50,
     points = [],
     /* gravity */
-    g = 0.5,
+    g = 0.1,
     /* coefficient of friction */
     f = 0.02,
     /* spring constant */
     k = 1,
     /* string length */
-    length = 100,
+    length = 200,
+    /* stiffness */
+    stiffness = 0.001,
     framerate = 120,
 
     lerp = function (a, b, t) {
@@ -66,12 +68,12 @@ module.exports = function () {
         });
       });
 
-      $(document).mousemove(function (event) {
+      $(canvas).mousemove(function (event) {
         mouse.x = event.pageX;
         mouse.y = event.pageY;
       });
 
-      $(document).mousedown(function () {
+      $(canvas).mousedown(function () {
         var  nearest = 10000;
         _.each(points, function (point) {
           var d = vec.distance(mouse, point);
@@ -84,7 +86,7 @@ module.exports = function () {
         });
       });
 
-      $(document).mouseup(resetPoint);
+      $(canvas).mouseup(resetPoint);
 
       _.delay(process, 1000 / framerate);
     },
@@ -92,16 +94,26 @@ module.exports = function () {
     draw = function () {
       ctx.fillStyle = "#333";
       ctx.strokeStyle = "#ccc";
-      ctx.lineWidth = 4;
-      ctx.lineCap = "round";
+      ctx.lineWidth = 5;
+      ctx.lineCap = ctx.lineJoin = "round";
 
       ctx.clearRect(0, 0, width, height);
       ctx.fillRect(0, 0, width, height);
 
       ctx.moveTo(points[0].x, points[1].y);
       ctx.beginPath();
-      _.each(points, function (point) {
-        ctx.lineTo(point.x, point.y);
+      _.each(points, function (p, i) {
+        var
+          prev = points[i - 1] || p,
+          prev2 = points[i - 2] || p,
+          next = points[i + 1] || p,
+          cp1 = vec.vector(prev2, p),
+          cp2 = vec.vector(next, prev);
+        cp1 = vec.add(vec.clone(prev), vec.mult(cp1, 0.15));
+        cp2 = vec.add(vec.clone(p), vec.mult(cp2, 0.15));
+
+        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, p.x, p.y);
+        //ctx.lineTo(p.x, p.y);
       });
       ctx.stroke();
     },
@@ -120,7 +132,6 @@ module.exports = function () {
           var d = vec.distance(a, b),
             v = vec.normalize(vec.vector(a, b)),
             f = k * (d - l);
-
           return vec.mult(v, f);
         };
 
@@ -131,8 +142,12 @@ module.exports = function () {
         if (i > 0 && i < numPoints - 1) {
           prev = points[i - 1];
           next = points[i + 1];
+          // elasticity between points
           vec.add(force, attract(p, next));
           vec.add(force, attract(p, prev));
+          // tendency for the string to stay straight
+          vec.add(force, vec.mult(vec.vector(p, vec.lerp(prev, next, 0.5)), stiffness / l));
+          //gravity
           vec.add(force, {x: 0, y: g});
 
           p.xv += force.x;
@@ -141,15 +156,18 @@ module.exports = function () {
         }
 
         if (p.clicked) {
-          force = vec.mult(attract(p, mouse), 1);
+          // attract towards mouse
+          force = attract(p, mouse);
 
           p.xv += force.x;
           p.yv += force.y;
 
-          p.yv *= 0.5;
-          p.xv *= 0.5;
+          // more friction
+          p.yv *= 0.7;
+          p.xv *= 0.7;
         }
 
+        // friction
         p.yv *= (1 - f);
         p.xv *= (1 - f);
       }
