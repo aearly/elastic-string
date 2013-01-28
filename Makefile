@@ -7,4 +7,4 @@ publish-to-gh-pages:
 	git push gh-pages master
 	git co master
 
-.PHONY publish-to-gh-pages
+.PHONY: publish-to-gh-pages
