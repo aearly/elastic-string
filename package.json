@@ -12,7 +12,9 @@
   "dependencies": {
     "jquery-browserify": "~1.8.1",
     "lodash": "~1.0.0-rc.3",
-    "grunt": "~0.3.17",
-    "grunt-browserify": "~0.1.2"
+    "grunt": "~0.4.0rc7",
+    "grunt-browserify": "~0.1.2",
+    "grunt-contrib-jshint": "~0.1.0",
+    "grunt-contrib-watch": "~0.1.4"
   }
 }

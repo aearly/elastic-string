@@ -48,6 +48,9 @@ var vector = {
    */
   normalize: function (a) {
     var d = 1 / vector.distance({x: 0, y: 0}, a);
+    if (isNaN(d) || d === Infinity) {
+      return a;
+    }
     a.x *= d;
     a.y *= d;
     return a;
@@ -66,6 +69,9 @@ var vector = {
    *
    */
   mult: function (a, t) {
+    if (isNaN(t)) {
+      return a;
+    }
     a.x *= t;
     a.y *= t;
     return a;

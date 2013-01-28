@@ -25,13 +25,17 @@ module.exports = function () {
     /* spring constant */
     k = 1,
     /* string length */
-    length = 200,
+    length = 500,
     /* stiffness */
-    stiffness = 0.001,
+    stiffness = 0.0,
     framerate = 120,
 
     lerp = function (a, b, t) {
       return (1 - t) * a + t * b;
+    },
+
+    clamp = function (a, min, max) {
+      return a < min ? min : a > max ? max : a;
     },
 
     resizeCanvas = function () {
@@ -124,11 +128,19 @@ module.exports = function () {
         l = length / numPoints,
         i = 0,
         p,
-        prev,
-        next,
+        prev, next,
+        prev2, next2,
         force = {x: 0, y: 0},
+        stiff,
 
         attract = function (a, b) {
+          var d = vec.distance(a, b),
+            v = vec.normalize(vec.vector(a, b)),
+            f = k * d;
+          return vec.mult(v, f);
+        },
+
+        spring = function (a, b) {
           var d = vec.distance(a, b),
             v = vec.normalize(vec.vector(a, b)),
             f = k * (d - l);
@@ -138,20 +150,36 @@ module.exports = function () {
       for (; i < numPoints; i += 1) {
         p = points[i];
         force.x = force.y = 0;
+        stiff = 1;
 
         if (i > 0 && i < numPoints - 1) {
           prev = points[i - 1];
           next = points[i + 1];
+
           // elasticity between points
-          vec.add(force, attract(p, next));
-          vec.add(force, attract(p, prev));
+          vec.add(force, spring(p, next));
+          vec.add(force, spring(p, prev));
+
           // tendency for the string to stay straight
-          vec.add(force, vec.mult(vec.vector(p, vec.lerp(prev, next, 0.5)), stiffness / l));
+          prev2 = points[i - 2] || null;
+          next2 = points[i + 2] || null;
+          if (prev2 && next2) {
+            vec.add(force, vec.mult(attract(p, vec.lerp(prev2, prev, 2)), stiffness));
+            vec.add(force, vec.mult(attract(p, vec.lerp(next2, next, 2)), stiffness));
+          }
+          if (isNaN(force.x) || isNaN(force.y)) {
+            throw new Error("NaN force!");
+          }
+          //vec.add(force, vec.mult(vec.vector(p, vec.lerp(prev, next, 0.5)), stiffness / l));
+          //stiff = 1 + stiffness * vec.distance(p, vec.lerp(prev, next, 0.5)) / vec.distance(prev, next);
+          //stiff = clamp(stiff, 1, stiffness);
+          //vec.mult(force, 1 / stiff);
+
           //gravity
           vec.add(force, {x: 0, y: g});
 
-          p.xv += force.x;
-          p.yv += force.y;
+          p.xv += clamp(force.x, -1, 1);
+          p.yv += clamp(force.y, -1, 1);
 
         }
 

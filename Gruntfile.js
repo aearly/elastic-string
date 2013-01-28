@@ -7,13 +7,13 @@ module.exports = function (grunt) {
       tasks: "default"
     },
 
-    lint: {
+    jshint: {
       files: "src/**/*.js"
     },
 
     browserify: {
       "public/js/main.js": {
-        entries: ["src/main.js"],
+        src: ["src/main.js"],
         aliases: [
           "jquery:jquery-browserify"
         ],
@@ -24,7 +24,9 @@ module.exports = function (grunt) {
   });
 
   grunt.loadNpmTasks("grunt-browserify");
+  grunt.loadNpmTasks("grunt-contrib-jshint");
+  grunt.loadNpmTasks("grunt-contrib-watch");
 
-  grunt.registerTask("default", "lint browserify");
+  grunt.registerTask("default", ["jshint", "browserify"]);
 
 };
