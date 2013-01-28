@@ -9757,9 +9757,10 @@ module.exports = function () {
     /* spring constant */
     k = 1,
     /* string length */
-    length = 200,
+    length = 100,
     /* stiffness */
     stiffness = 0.0,
+    forceclamp = 10,
     framerate = 120,
 
     lerp = function (a, b, t) {
@@ -9910,8 +9911,8 @@ module.exports = function () {
           //gravity
           vec.add(force, {x: 0, y: g});
 
-          p.xv += clamp(force.x, -1, 1);
-          p.yv += clamp(force.y, -1, 1);
+          p.xv += clamp(force.x, -forceclamp, forceclamp);
+          p.yv += clamp(force.y, -forceclamp, forceclamp);
 
         }
 
