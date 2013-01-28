@@ -9760,7 +9760,7 @@ module.exports = function () {
     length = 100,
     /* stiffness */
     stiffness = 0.0,
-    forceclamp = 10,
+    forceclamp = 100,
     framerate = 120,
 
     lerp = function (a, b, t) {
