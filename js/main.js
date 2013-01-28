@@ -9757,7 +9757,7 @@ module.exports = function () {
     /* spring constant */
     k = 1,
     /* string length */
-    length = 500,
+    length = 200,
     /* stiffness */
     stiffness = 0.0,
     framerate = 120,
