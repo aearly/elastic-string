@@ -23,12 +23,12 @@ module.exports = function () {
     /* coefficient of friction */
     f = 0.02,
     /* spring constant */
-    k = 1,
+    k = 1.0,
     /* string length */
     length = 100,
     /* stiffness */
-    stiffness = 0.0,
-    forceclamp = 100,
+    stiffness = 0.0001,
+    forceclamp = 100000,
     framerate = 120,
 
     lerp = function (a, b, t) {
@@ -131,6 +131,8 @@ module.exports = function () {
         p,
         prev, next,
         prev2, next2,
+        v1, v2,
+        dot,
         force = {x: 0, y: 0},
         stiff,
 
@@ -165,8 +167,16 @@ module.exports = function () {
           prev2 = points[i - 2] || null;
           next2 = points[i + 2] || null;
           if (prev2 && next2) {
-            vec.add(force, vec.mult(attract(p, vec.lerp(prev2, prev, 2)), stiffness));
-            vec.add(force, vec.mult(attract(p, vec.lerp(next2, next, 2)), stiffness));
+            v1 = vec.vector(prev2, prev);
+            v2 = vec.vector(prev, p);
+            dot = vec.dot(v1, v2);
+            vec.mult(v1, dot / (vec.length(v1) * vec.length(v2)));
+            vec.add(force, vec.mult(attract(p, vec.add(v1, prev)), stiffness));
+            v1 = vec.vector(next2, next);
+            v2 = vec.vector(next, p);
+            dot = vec.dot(v1, v2);
+            vec.mult(v1, dot / (vec.length(v1) * vec.length(v2)));
+            vec.add(force, vec.mult(attract(p, vec.add(v1, next)), stiffness));
           }
           if (isNaN(force.x) || isNaN(force.y)) {
             throw new Error("NaN force!");

@@ -80,6 +80,13 @@ var vector = {
   /*
    *
    */
+  dot: function (a, b) {
+    return (a.x * b.x) + (a.y * b.y);
+  },
+
+  /*
+   *
+   */
   lerp: function (a, b, t) {
 
     return {
